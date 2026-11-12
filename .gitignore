@@ -1,0 +1,17 @@
+# Ignore test files
+SearchEngine/tests/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Test cache
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+
+# IDE settings
+.vscode/
+.idea/
