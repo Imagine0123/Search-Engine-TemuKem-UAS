@@ -515,7 +515,7 @@ def main() -> int:
         "--data", type=Path, default=DEFAULT_CORPUS,
         help=f"Path CSV preprocessing (default: {DEFAULT_CORPUS})",
     )
-    parser.add_argument("--top-k", type=int, default=10, help="Jumlah hasil yang ditampilkan")
+    parser.add_argument("--top-k", type=int, default=100, help="Jumlah hasil yang ditampilkan")
     args = parser.parse_args()
 
     try:
