@@ -1,5 +1,5 @@
 # Ignore test files
-SearchEngine/tests/
+# SearchEngine/tests/
 
 # Python cache files
 __pycache__/
