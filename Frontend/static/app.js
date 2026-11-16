@@ -2,41 +2,25 @@
 
 const $ = (id) => document.getElementById(id);
 const el = {
-  form: $("form"), q: $("q"), scope: $("scope"), hint: $("hint"),
-  media: $("media"), author: $("author"), year: $("year"), topk: $("topk"),
-  reset: $("reset"), status: $("status"), qout: $("qout"),
-  results: $("results"), empty: $("empty"), error: $("error"), sub: $("sub"),
-  examples: $("examples"),
+  form: $("form"), q: $("q"), sub: $("sub"), status: $("status"),
+  results: $("results"), intro: $("intro"), empty: $("empty"), error: $("error"),
 };
 
-const HINTS = {
-  title: "Mencari kata di judul artikel.",
-  content: "Mencari kata di isi artikel.",
-  both: "Artikel harus cocok di judul dan di isi.",
+/* Ikon garis per jenis berita, di pojok kanan atas kartu */
+const BALL = '<circle cx="12" cy="12" r="9"/><polygon points="12,8 15.6,10.6 14.2,14.8 9.8,14.8 8.4,10.6"/><path d="M12 8V3M15.6 10.6l5-1.6M14.2 14.8l3 4M9.8 14.8l-3 4M8.4 10.6l-5-1.6"/>';
+const ICONS = {
+  transfer: '<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>',
+  pelatih: '<rect x="6" y="4" width="12" height="17" rx="1"/><path d="M9.5 2.5h5v3h-5zM9 11h6M9 15h6"/>',
+  jadwal: '<rect x="3.5" y="5" width="17" height="15" rx="1"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  laga: BALL,
+  bisnis: '<path d="M8.5 3L3 6l2 4 3-1v12h8V9l3 1 2-4-5.5-3c-.7 1.6-2 2.2-3.5 2.2S9.2 4.6 8.5 3z"/>',
+  stadion: '<ellipse cx="12" cy="12" rx="9.5" ry="6.5"/><ellipse cx="12" cy="12" rx="5" ry="3"/>',
+  umum: BALL,
 };
 
-/* Menyusun string query sesuai sintaks backend:
-   kata biasa -> judul, "kata" -> isi, @penulis, #media, %tahun */
-function buildQuery() {
-  const text = el.q.value.trim();
-  const parts = [];
-  if (text) {
-    if (/["@#%]/.test(text)) {
-      parts.push(text); // sintaks diketik langsung
-    } else if (el.scope.value === "title") {
-      parts.push(text);
-    } else if (el.scope.value === "content") {
-      parts.push(`"${text}"`);
-    } else {
-      parts.push(text, `"${text}"`);
-    }
-  }
-  if (el.author.value) parts.push(`@"${el.author.value}"`);
-  if (el.media.value) parts.push(`#"${el.media.value}"`);
-  if (el.year.value) parts.push(`%${el.year.value}`);
-  return parts.join(" ");
-}
+function buildQuery() { return el.q.value.trim(); }
 
+/* Kata yang disorot = kata biasa & isi tanda petik di query (tanpa @ # %) */
 function highlightTerms() {
   const raw = el.q.value.replace(/@"[^"]*"|@\S+|#"[^"]*"|#\S+|%\S+/g, " ").replace(/"/g, " ");
   return [...new Set(raw.split(/\s+/).filter((w) => w.length >= 3))];
@@ -69,6 +53,8 @@ const FIELD_LABEL = { title: "cocok di judul", content: "cocok di isi" };
 
 function renderResults(data, terms) {
   el.results.innerHTML = data.results.map((r, i) => {
+    const theme = r.theme || { club: null, cat: "umum" };
+    const classes = ["card", `cat-${theme.cat}`, theme.club ? `club-${theme.club}` : ""].join(" ");
     const filterOnly = r.score === null;
     const gauge = filterOnly
       ? `<span class="latest">Urut terbaru</span>`
@@ -79,9 +65,10 @@ function renderResults(data, terms) {
       ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener noreferrer">${title}</a>`
       : title;
     return `
-      <li class="card">
+      <li class="${classes}">
+        <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[theme.cat] || ICONS.umum}</svg>
         <div class="rank" aria-hidden="true">${i + 1}</div>
-        <div>
+        <div class="body">
           <div class="byline">
             <span class="media-tag">${escapeHtml(r.media)}</span>
             <span>${escapeHtml(formatDate(r.date))}</span>
@@ -101,30 +88,29 @@ function setError(msg) {
 }
 
 let controller = null;
-async function runSearch({ latest = false } = {}) {
+async function runSearch() {
   const query = buildQuery();
-  el.qout.textContent = query || "–";
-  [el.media, el.author, el.year].forEach((s) => s.classList.toggle("active", !!s.value));
   setError("");
   if (!query) {
     el.results.innerHTML = "";
     el.empty.hidden = true;
-    el.status.textContent = "Ketik kata kunci atau pilih filter untuk mulai.";
+    el.intro.hidden = false;
+    el.status.textContent = "";
     return;
   }
+  el.intro.hidden = true;
 
   if (controller) controller.abort();
   controller = new AbortController();
   el.status.textContent = "Mencari…";
   try {
-    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&top_k=${el.topk.value}`, { signal: controller.signal });
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Terjadi kesalahan di server.");
     el.empty.hidden = data.count > 0;
     renderResults(data, highlightTerms());
-    const ms = data.took_ms.toLocaleString("id-ID");
     el.status.textContent = data.count
-      ? `${latest ? "Artikel terbaru: " : "Ditemukan "}${data.count} artikel dalam ${ms} ms`
+      ? `Ditemukan ${data.count} artikel dalam ${data.took_ms.toLocaleString("id-ID")} ms`
       : "";
   } catch (err) {
     if (err.name === "AbortError") return;
@@ -137,31 +123,10 @@ async function runSearch({ latest = false } = {}) {
   }
 }
 
-function fillSelect(select, values) {
-  values.forEach((v) => select.append(new Option(v, v)));
-}
-
-function updateHint() { el.hint.textContent = HINTS[el.scope.value]; }
-
-function resetFilters() {
-  [el.media, el.author, el.year].forEach((s) => (s.value = ""));
-}
-
 async function init() {
-  updateHint();
   try {
     const meta = await (await fetch("/api/meta")).json();
-    fillSelect(el.media, meta.media);
-    fillSelect(el.author, meta.authors);
-    fillSelect(el.year, meta.years);
     el.sub.textContent = `${meta.doc_count} artikel dari ${meta.media.join(", ")}.`;
-    // Tampilan awal: artikel terbaru di tahun terbaru
-    if (meta.years.length) {
-      el.year.value = meta.years[0];
-      await runSearch({ latest: true });
-      el.year.value = "";
-      [el.media, el.author, el.year].forEach((s) => s.classList.remove("active"));
-    }
   } catch {
     setError("Server tidak bisa dihubungi. Jalankan python Frontend/api.py lalu muat ulang halaman ini.");
     el.sub.textContent = "";
@@ -169,18 +134,4 @@ async function init() {
 }
 
 el.form.addEventListener("submit", (e) => { e.preventDefault(); runSearch(); });
-[el.media, el.author, el.year, el.topk, el.scope].forEach((s) =>
-  s.addEventListener("change", () => { updateHint(); runSearch(); }));
-el.reset.addEventListener("click", () => { resetFilters(); runSearch(); });
-el.examples.addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-q]");
-  if (!b) return;
-  el.q.value = b.dataset.q;
-  el.scope.value = b.dataset.scope || "title";
-  resetFilters();
-  if (b.dataset.media) el.media.value = b.dataset.media;
-  updateHint();
-  runSearch();
-});
-
 init();

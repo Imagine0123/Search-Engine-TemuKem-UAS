@@ -10,51 +10,50 @@ import sys
 import time
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent
+for path in (REPO_ROOT, HERE):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from SearchEngine.search_engine import NewsSearchEngine
+from theme import classify
 
-STATIC_DIR = Path(__file__).resolve().parent / "static"
+STATIC_DIR = HERE / "static"
 
 app = FastAPI(title="Liga Indonesia Search")
 
 # Indeks dibuat sekali saat server menyala (stemming judul butuh beberapa detik).
 engine = NewsSearchEngine()
 
-
-def _build_meta() -> dict:
-    df = engine.df
-    years = sorted({str(d.year) for d in engine._parsed_dates if d == d}, reverse=True)
-    return {
-        "doc_count": int(len(df)),
-        "media": sorted({m.strip() for m in df["media"] if m.strip()}),
-        # strip(): beberapa nama penulis di CSV berakhiran "\r\n"
-        "authors": sorted({a.strip() for a in df["author"] if a.strip()}),
-        "years": years,
-    }
-
-
-META = _build_meta()
+# Tema background kartu per dokumen, dihitung sekali dari judul dan isi artikel.
+THEMES = {
+    row.doc_id: classify(row.title, row.raw_text)
+    for row in engine.df.itertuples()
+}
 
 
 @app.get("/api/meta")
 def meta() -> dict:
-    return META
+    return {
+        "doc_count": int(len(engine.df)),
+        "media": sorted({m.strip() for m in engine.df["media"] if m.strip()}),
+    }
 
 
 @app.get("/api/search")
-def search(q: str = Query(..., description="Query dengan sintaks backend"), top_k: int = Query(10, ge=1, le=100)) -> dict:
+def search(q: str = Query(..., description="Query dengan sintaks backend"), top_k: int = Query(100, ge=1, le=100)) -> dict:
     started = time.perf_counter()
     try:
         results = engine.search(q, top_k=top_k)
     except ValueError as exc:  # query tidak valid -> pesan dari backend dikirim apa adanya
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    for item in results:
+        item["theme"] = THEMES.get(item["doc_id"], {"club": None, "cat": "umum"})
     return {
         "query": q,
         "count": len(results),

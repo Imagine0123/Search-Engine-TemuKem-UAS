@@ -7,23 +7,23 @@
   <meta name="description" content="Mesin pencari berita Liga Indonesia dengan ranking BM25.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <header class="hero">
     <!-- Lapangan dilihat dari atas: garis kapur di belakang kotak pencarian -->
-    <svg class="pitch" viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g fill="none" stroke="#fff" stroke-width="3" opacity=".3">
-        <rect x="30" y="30" width="1140" height="400"/>
-        <line x1="600" y1="30" x2="600" y2="430"/>
-        <circle cx="600" cy="230" r="120"/>
-        <rect x="30" y="120" width="170" height="220"/>
-        <rect x="30" y="180" width="62" height="100"/>
-        <rect x="1000" y="120" width="170" height="220"/>
-        <rect x="1108" y="180" width="62" height="100"/>
+    <svg class="pitch" viewBox="0 0 1200 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="#fff" stroke-width="2" opacity=".16">
+        <rect x="30" y="24" width="1140" height="332"/>
+        <line x1="600" y1="24" x2="600" y2="356"/>
+        <circle cx="600" cy="190" r="105"/>
+        <rect x="30" y="95" width="170" height="190"/>
+        <rect x="30" y="145" width="62" height="90"/>
+        <rect x="1000" y="95" width="170" height="190"/>
+        <rect x="1108" y="145" width="62" height="90"/>
       </g>
-      <circle cx="600" cy="230" r="6" fill="#fff" opacity=".3"/>
+      <circle cx="600" cy="190" r="5" fill="#fff" opacity=".16"/>
     </svg>
 
     <div class="wrap hero-inner">
@@ -39,55 +39,36 @@
       <p class="sub" id="sub">Memuat korpus…</p>
 
       <form id="form" class="searchbox" role="search" autocomplete="off">
-        <input id="q" name="q" type="search" placeholder="Persija, Shin Tae-yong" aria-label="Kata kunci">
-        <select id="scope" aria-label="Cari di">
-          <option value="title">Di judul</option>
-          <option value="content">Di isi artikel</option>
-          <option value="both">Di judul dan isi</option>
-        </select>
+        <input id="q" name="q" type="search" placeholder='Persija "transfer pemain" @"Sandy Firdaus" %2026 #Kompas' aria-label="Query pencarian">
         <button type="submit">Cari</button>
       </form>
-      <p class="hint" id="hint"></p>
 
-      <div class="filters">
-        <select id="media" aria-label="Media"><option value="">Semua media</option></select>
-        <select id="author" aria-label="Penulis"><option value="">Semua penulis</option></select>
-        <select id="year" aria-label="Tahun"><option value="">Semua tahun</option></select>
-        <select id="topk" aria-label="Jumlah hasil">
-          <option value="10">10 hasil</option>
-          <option value="20">20 hasil</option>
-          <option value="50">50 hasil</option>
-        </select>
-        <button type="button" id="reset" class="ghost">Hapus filter</button>
-      </div>
+      <ul class="syntax" aria-label="Sintaks query">
+        <li><code>Persija</code> cari di judul</li>
+        <li><code>"transfer pemain"</code> cari di isi</li>
+        <li><code>@"Sandy Firdaus"</code> penulis</li>
+        <li><code>%2026</code> tahun</li>
+        <li><code>#Kompas</code> media</li>
+      </ul>
     </div>
   </header>
 
   <main class="wrap">
-    <div class="meta-row">
-      <p id="status" role="status" aria-live="polite"></p>
-      <p class="qline">Query ke backend: <code id="qout">–</code></p>
-    </div>
-
-    <div id="examples" class="examples">
-      <span>Coba:</span>
-      <button type="button" data-q="Persija" data-scope="title">Persija</button>
-      <button type="button" data-q="transfer pemain" data-scope="content">transfer pemain</button>
-      <button type="button" data-q="Shin Tae-yong" data-scope="both">Shin Tae-yong</button>
-      <button type="button" data-q="" data-media="Kompas">Semua artikel Kompas</button>
-    </div>
-
+    <p id="status" role="status" aria-live="polite"></p>
     <div id="error" class="error" role="alert" hidden></div>
     <ol id="results" class="results"></ol>
+    <div id="intro" class="empty">
+      <h2>Mulai dari kotak pencarian</h2>
+      <p>Ketik kata kunci atau pakai sintaks di atas, lalu tekan Cari.</p>
+    </div>
     <div id="empty" class="empty" hidden>
       <h2>Tidak ada artikel yang cocok</h2>
-      <p>Coba kata kunci yang lebih umum, ganti lokasi pencarian ke judul atau isi, atau hapus filter.</p>
+      <p>Coba kata kunci yang lebih umum, atau kurangi filter <code>@</code>, <code>%</code>, dan <code>#</code> di query.</p>
     </div>
   </main>
 
   <footer class="wrap foot">
-    Ranking memakai BM25 (k1 = 1,5; b = 0,75). Sintaks di kotak pencarian juga bisa diketik langsung:
-    <code>@penulis</code> <code>#media</code> <code>%2026</code> <code>"isi artikel"</code>
+    Ranking memakai BM25 (k1 = 1,5; b = 0,75). Warna kartu mengikuti klub, ikon mengikuti jenis berita dari isi artikel.
   </footer>
 
   <script src="/static/app.js"></script>
