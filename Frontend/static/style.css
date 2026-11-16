@@ -1,52 +1,59 @@
 :root {
-  --grass: #1f6b3a;
-  --grass-deep: #123d25;
-  --page: #f5f7f3;
-  --paper: #ffffff;
-  --ink: #14261b;
-  --muted: #5b6b61;
-  --rule: #e1e7de;
-  --card-yellow: #f6c90e;
-  --card-red: #c8321f;
-  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* soft sand */
+  --sand-50: #fbf8f1;
+  --sand-100: #f4ede1;
+  --sand-200: #e9dfcd;
+  --sand-300: #d9cbb2;
+  /* mocha green */
+  --mocha-900: #474239;
+  --mocha-700: #4a5a47;
+  --mocha-100: #e1e7d7;
+  --mocha-50: #ecf0e3;
+  /* watermelon pink */
+  --pink-500: #ee6f82;
+  --pink-700: #b4344b;
+  --pink-200: #f8cbd1;
+  --pink-100: #fce6e8;
+
+  --ink: var(--mocha-900);
+  --muted: #5c6657;
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  background: var(--page);
+  background: var(--sand-100);
   color: var(--ink);
   font: 400 1rem/1.6 var(--font);
 }
-.wrap { width: min(820px, 100% - 32px); margin-inline: auto; }
+.wrap { width: min(780px, 100% - 32px); margin-inline: auto; padding: 28px 0 40px; }
 
-/* ---------- Hero: satu bidang hijau, garis lapangan samar ---------- */
-.hero { position: relative; color: #fff; background: var(--grass-deep); overflow: hidden; }
-.pitch { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.hero-inner { position: relative; padding: 24px 0 30px; }
-
+/* ---------- Atas ---------- */
 .brand {
   display: flex; align-items: center; gap: 10px;
-  margin: 0 0 44px;
+  margin: 0 0 56px;
   font: 700 .95rem/1 var(--font);
-  color: rgba(255, 255, 255, .88);
+  color: var(--mocha-700);
 }
 h1 {
   margin: 0;
   font: 800 clamp(2.1rem, 6vw, 3.3rem)/1.05 var(--font);
   letter-spacing: -0.03em;
+  color: var(--mocha-900);
 }
-.sub { margin: 12px 0 26px; color: rgba(255, 255, 255, .72); }
+.sub { margin: 12px 0 28px; color: var(--muted); }
 
 .searchbox {
   display: flex; align-items: center; gap: 8px;
-  background: var(--paper);
-  border-radius: 14px;
-  padding: 6px 6px 6px 18px;
-  transition: box-shadow .15s;
+  background: var(--sand-50);
+  border: 1.5px solid var(--sand-300);
+  border-radius: 999px;
+  padding: 6px 6px 6px 22px;
+  transition: border-color .15s, box-shadow .15s;
 }
-.searchbox:focus-within { box-shadow: 0 0 0 3px var(--card-yellow); }
+.searchbox:focus-within { border-color: var(--pink-500); box-shadow: 0 0 0 4px var(--pink-100); }
 .searchbox input {
   flex: 1 1 auto; min-width: 0;
   border: 0; background: transparent;
@@ -54,113 +61,99 @@ h1 {
   font: 500 1.05rem var(--font);
   color: var(--ink);
 }
-.searchbox input::placeholder { color: #8b998f; }
+.searchbox input::placeholder { color: #94998b; }
 .searchbox input:focus { outline: none; }
 .searchbox button {
   border: 0; cursor: pointer;
-  background: var(--grass); color: #fff;
+  background: var(--mocha-700); color: var(--sand-50);
   font: 700 .98rem var(--font);
-  padding: 12px 26px;
-  border-radius: 10px;
+  padding: 13px 28px;
+  border-radius: 999px;
   transition: background .15s;
 }
-.searchbox button:hover { background: #185a30; }
+.searchbox button:hover { background: var(--mocha-900); }
+button:focus-visible { outline: 3px solid var(--pink-500); outline-offset: 2px; }
 
 .syntax {
-  list-style: none; margin: 16px 2px 0; padding: 0;
-  display: flex; flex-wrap: wrap; gap: 6px 20px;
-  font-size: .86rem; color: rgba(255, 255, 255, .72);
+  list-style: none; margin: 16px 4px 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+  font-size: .86rem; color: var(--muted);
 }
-.syntax code { background: rgba(255, 255, 255, .12); color: #fff; margin-right: 4px; }
-
-.hero :focus-visible { outline: 3px solid var(--card-yellow); outline-offset: 2px; }
-main :focus-visible, .foot :focus-visible { outline: 3px solid var(--grass); outline-offset: 2px; }
-.searchbox input:focus-visible { outline: none; }
-
 code {
   font: 500 .88em ui-monospace, "Cascadia Mono", Consolas, monospace;
-  background: #e8eee5; padding: 2px 7px; border-radius: 6px;
+  background: var(--mocha-100); color: var(--mocha-900);
+  padding: 2px 7px; border-radius: 6px;
+  margin-right: 3px;
   overflow-wrap: anywhere;
 }
 
 /* ---------- Hasil ---------- */
-main { padding-top: 24px; padding-bottom: 20px; }
+main { margin-top: 36px; }
 #status { margin: 0; font-size: .9rem; font-weight: 600; color: var(--muted); min-height: 1.6em; }
 .results { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
 
-/* Kartu: warna dari klub (kalau ada) atau jenis berita; ikon dari jenis berita */
+/* Warna kartu mengikuti jenis berita, tetap di dalam tiga warna palet:
+   pink = transfer & bisnis | hijau = jadwal, laga, stadion | sand = pelatih & umum */
 .card {
-  --c1: #1f6b3a; --c2: #14532d;               /* default: hijau lapangan (jenis "umum") */
+  --bg: var(--sand-50); --edge: var(--sand-200); --accent: var(--mocha-700); --tag: var(--mocha-700);
   position: relative;
   display: grid; grid-template-columns: 34px 1fr; gap: 0 14px;
   padding: 20px 56px 18px 18px;
-  border-radius: 16px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--c1), color-mix(in srgb, var(--c1) 68%, var(--c2)));
+  background: var(--bg);
+  border: 1px solid var(--edge);
+  border-radius: 20px;
 }
-/* jenis berita */
-.cat-transfer { --c1: #0f766e; --c2: #134e4a; }
-.cat-pelatih  { --c1: #8a5a14; --c2: #422006; }
-.cat-jadwal   { --c1: #3a4a60; --c2: #0f172a; }
-.cat-laga     { --c1: #0e7490; --c2: #164e63; }
-.cat-bisnis   { --c1: #9d174d; --c2: #500724; }
-.cat-stadion  { --c1: #4d7c0f; --c2: #1a2e05; }
-/* klub (menimpa warna jenis berita; klub tanpa aturan di sini memakai warna jenis berita) */
-.club-persija      { --c1: #c2410c; --c2: #7c2d12; }
-.club-persib       { --c1: #1d4ed8; --c2: #1e3a8a; }
-.club-persebaya    { --c1: #15803d; --c2: #14532d; }
-.club-arema        { --c1: #1e3a8a; --c2: #172554; }
-.club-persik       { --c1: #6d28d9; --c2: #4c1d95; }
-.club-persipura    { --c1: #b91c1c; --c2: #111827; }
-.club-madura       { --c1: #b91c1c; --c2: #7f1d1d; }
-.club-semen-padang { --c1: #b91c1c; --c2: #7f1d1d; }
+.cat-transfer, .cat-bisnis { --bg: var(--pink-100); --edge: var(--pink-200); --accent: var(--pink-700); --tag: var(--pink-700); }
+.cat-jadwal, .cat-laga, .cat-stadion { --bg: var(--mocha-50); --edge: var(--mocha-100); --accent: var(--mocha-700); --tag: var(--mocha-700); }
+.cat-pelatih { --bg: var(--sand-200); --edge: var(--sand-300); --accent: var(--mocha-700); --tag: var(--mocha-900); }
 
-.card .mark {
+.card .ico {
   position: absolute; top: 18px; right: 18px;
   width: 26px; height: 26px;
-  color: #fff; opacity: .8;
+  color: var(--accent); opacity: .75;
 }
 .rank {
   font: 700 .9rem/1.9 var(--font);
-  color: rgba(255, 255, 255, .8);
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
-.byline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .85rem; color: rgba(255, 255, 255, .85); }
+.byline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .85rem; color: var(--muted); }
 .media-tag {
-  background: rgba(255, 255, 255, .18); color: #fff;
+  background: var(--tag); color: var(--sand-50);
   font-weight: 700; font-size: .76rem;
   padding: 2px 10px; border-radius: 999px;
 }
 .card h2 { margin: 8px 0 6px; font: 700 1.2rem/1.35 var(--font); letter-spacing: -0.01em; }
-.card h2 a { color: #fff; text-decoration: none; }
-.card h2 a:hover { text-decoration: underline; text-decoration-color: var(--card-yellow); text-decoration-thickness: 2px; text-underline-offset: 4px; }
-.card a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; border-radius: 4px; }
-.snippet { margin: 0 0 12px; color: rgba(255, 255, 255, .92); font-size: .95rem; max-width: 68ch; }
-mark { background: var(--card-yellow); color: var(--ink); padding: 0 3px; border-radius: 4px; }
+.card h2 a { color: var(--ink); text-decoration: none; }
+.card h2 a:hover { text-decoration: underline; text-decoration-color: var(--pink-500); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.card a:focus-visible { outline: 3px solid var(--pink-500); outline-offset: 3px; border-radius: 4px; }
+.snippet { margin: 0 0 12px; color: #3f4939; font-size: .95rem; max-width: 68ch; }
+mark { background: #f7b9c3; color: var(--ink); padding: 0 3px; border-radius: 4px; }
 
-.foot-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: .8rem; color: rgba(255, 255, 255, .82); }
-.chip { border: 1px solid rgba(255, 255, 255, .4); border-radius: 999px; padding: 1px 10px; }
+.foot-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: .8rem; color: var(--muted); }
+.chip { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 999px; padding: 1px 10px; }
 .gauge { display: inline-flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
-.gauge i { display: block; width: 80px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .25); overflow: hidden; }
-.gauge b { display: block; height: 100%; background: #fff; border-radius: 3px; }
-.latest { font-weight: 700; color: #fff; }
+.gauge i { display: block; width: 80px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--mocha-700) 18%, transparent); overflow: hidden; }
+.gauge b { display: block; height: 100%; background: var(--pink-500); border-radius: 3px; }
+.latest { font-weight: 700; color: var(--accent); }
 
 .empty { text-align: center; padding: 56px 12px; color: var(--muted); }
 .empty h2 { margin: 0 0 6px; font: 700 1.4rem var(--font); letter-spacing: -0.01em; color: var(--ink); }
 .empty p { margin: 0 auto; max-width: 44ch; }
 .error {
   margin: 14px 0 0; padding: 14px 18px;
-  background: #fbeceb; color: #6d1a10;
-  border-left: 4px solid var(--card-red);
-  border-radius: 10px;
+  background: var(--pink-100); color: #7a1f31;
+  border: 1px solid var(--pink-200);
+  border-radius: 14px;
 }
 
-.foot { padding: 18px 0 36px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--rule); }
+.foot { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--sand-300); color: var(--muted); font-size: .85rem; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 600px) {
-  .brand { margin-bottom: 32px; }
-  .searchbox { padding-left: 14px; }
+  .wrap { padding-top: 20px; }
+  .brand { margin-bottom: 36px; }
+  .searchbox { padding-left: 16px; }
   .searchbox button { padding: 12px 20px; }
   .card { grid-template-columns: 1fr; padding: 18px 50px 16px 16px; }
   .rank { line-height: 1; margin-bottom: 8px; }
