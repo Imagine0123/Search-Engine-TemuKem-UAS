@@ -54,9 +54,20 @@
   </header>
 
   <main class="wrap">
-    <p id="status" role="status" aria-live="polite"></p>
+    <div class="toolbar" id="toolbar">
+      <p id="status" role="status" aria-live="polite"></p>
+      <label class="perpage" id="perpage" hidden>
+        Tampilkan
+        <select id="size" aria-label="Jumlah artikel per halaman">
+          <option value="5">5 artikel</option>
+          <option value="10" selected>10 artikel</option>
+          <option value="20">20 artikel</option>
+        </select>
+      </label>
+    </div>
     <div id="error" class="error" role="alert" hidden></div>
     <ol id="results" class="results"></ol>
+    <nav id="pager" class="pager" aria-label="Halaman hasil" hidden></nav>
     <div id="intro" class="empty">
       <h2>Mulai dari kotak pencarian</h2>
       <p>Ketik kata kunci atau pakai sintaks di atas, lalu tekan Cari.</p>

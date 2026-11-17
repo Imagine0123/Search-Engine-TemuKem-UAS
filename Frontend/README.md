@@ -18,6 +18,10 @@ Satu kotak pencarian, semua fitur lewat sintaks query backend:
 `Persija` (judul), `"transfer pemain"` (isi), `@"Nama Penulis"`, `%2026`, `#Kompas`.
 Teks di kotak dikirim apa adanya ke `NewsSearchEngine.search()`.
 
+Frontend mengambil seluruh hasil sekali (maks. 100), lalu membaginya per halaman di browser
+(pilihan 5, 10, atau 20 artikel). Penyorotan mengikuti kolom yang dicari: kata biasa hanya menyorot judul,
+kata di dalam tanda petik hanya menyorot cuplikan isi.
+
 ## Struktur
 ```
 Frontend/
