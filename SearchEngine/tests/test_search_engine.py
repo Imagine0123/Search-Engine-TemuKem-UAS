@@ -100,3 +100,56 @@ def test_author_partial_match_is_case_insensitive(tmp_path):
     engine = NewsSearchEngine(path, query_preprocessor=simple_preprocessor)
     results = engine.search("@sAnDy")
     assert [item["doc_id"] for item in results] == ["KMP001"]
+
+def test_title_query_requires_all_terms_in_the_same_title(tmp_path):
+    corpus = pd.DataFrame([
+        {
+            "doc_id": "DOC001", "title": "Persija Raih Kemenangan",
+            "media": "Kompas", "date": "2026-08-15", "author": "Author A",
+            "text_final": "berita sepak bola",
+        },
+        {
+            "doc_id": "DOC002", "title": "Persib Rekrut Pemain Baru",
+            "media": "ANTARA", "date": "2026-08-16", "author": "Author B",
+            "text_final": "berita sepak bola",
+        },
+        {
+            "doc_id": "DOC003", "title": "Persija dan Persib Bertanding",
+            "media": "Kompas", "date": "2026-08-17", "author": "Author C",
+            "text_final": "berita sepak bola",
+        },
+    ])
+    path = tmp_path / "processed.csv"
+    corpus.to_csv(path, index=False)
+
+    engine = NewsSearchEngine(path, query_preprocessor=simple_preprocessor)
+    results = engine.search("Persija Persib")
+
+    assert [item["doc_id"] for item in results] == ["DOC003"]
+
+
+def test_content_query_requires_all_terms_in_the_same_article(tmp_path):
+    corpus = pd.DataFrame([
+        {
+            "doc_id": "DOC001", "title": "Berita Sepak Bola A",
+            "media": "Kompas", "date": "2026-08-15", "author": "Author A",
+            "text_final": "persija menang pertandingan",
+        },
+        {
+            "doc_id": "DOC002", "title": "Berita Sepak Bola B",
+            "media": "ANTARA", "date": "2026-08-16", "author": "Author B",
+            "text_final": "persib menang pertandingan",
+        },
+        {
+            "doc_id": "DOC003", "title": "Berita Sepak Bola C",
+            "media": "Kompas", "date": "2026-08-17", "author": "Author C",
+            "text_final": "persija dan persib bertemu",
+        },
+    ])
+    path = tmp_path / "processed.csv"
+    corpus.to_csv(path, index=False)
+
+    engine = NewsSearchEngine(path, query_preprocessor=simple_preprocessor)
+    results = engine.search('"persija persib"')
+
+    assert [item["doc_id"] for item in results] == ["DOC003"]

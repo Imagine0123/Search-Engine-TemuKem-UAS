@@ -68,7 +68,7 @@ class ParsedQuery:
         return bool(self.title_terms or self.content_terms)
 
 
-class IndonesianQueryPreprocessor:
+class QueryPreprocessor:
     """Memproses query dan judul agar sesuai dengan hasil preprocessing corpus.
     Isi artikel sudah melalui preprocessing di notebook preprocessing. Disini,
     preprocessing yang sama diterapkan pada query baru dari pengguna dan pada
@@ -307,7 +307,7 @@ class NewsSearchEngine:
                 print(f"Peringatan: metadata URL/teks asli tidak dapat dimuat: {exc}", file=sys.stderr)
 
         self._parsed_dates = [_parse_date(value) for value in self.df["date"]]
-        self.query_preprocessor = query_preprocessor or IndonesianQueryPreprocessor()
+        self.query_preprocessor = query_preprocessor or QueryPreprocessor()
 
         # Mengambil isi artikel yang sudah diproses di notebook preprocessing.
         content_documents = [
@@ -417,6 +417,7 @@ class NewsSearchEngine:
 
         field_scores: list[dict[int, float]] = []
         matched_fields: list[str] = []
+        field_term_requirements: list[tuple[BM25Index, list[str]]] = []
 
         if parsed.title_terms:
             tokens = self.query_preprocessor(" ".join(parsed.title_terms))
@@ -425,6 +426,7 @@ class NewsSearchEngine:
             raw_scores = self.title_index.get_scores(tokens)
             field_scores.append({i: raw_scores[i] for i in candidates})
             matched_fields.append("title")
+            field_term_requirements.append((self.title_index, tokens))
 
         if parsed.content_terms:
             tokens = self.query_preprocessor(" ".join(parsed.content_terms))
@@ -433,6 +435,7 @@ class NewsSearchEngine:
             raw_scores = self.content_index.get_scores(tokens)
             field_scores.append({i: raw_scores[i] for i in candidates})
             matched_fields.append("content")
+            field_term_requirements.append((self.content_index, tokens))
 
         ranked: list[tuple[int, Optional[float]]] = []
         if field_scores:
@@ -440,7 +443,14 @@ class NewsSearchEngine:
             # dokumen harus memiliki skor BM25 positif pada semua kolom yang dicari.
             matching_candidates = [
                 i for i in candidates
-                if all(scores.get(i, 0.0) > 0 for scores in field_scores)
+                if all(
+                    all(
+                        term in index.term_frequencies[i]
+                        for term in set(query_tokens)
+                    )
+                    for index, query_tokens in field_term_requirements
+                )
+                and all(scores.get(i, 0.0) > 0 for scores in field_scores)
             ]
             if not matching_candidates:
                 return []
